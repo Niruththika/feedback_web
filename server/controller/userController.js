@@ -1,72 +1,90 @@
 import Review from "../model/userModel.js";
 
-export const create = async(req, res)=>{
-    try {
+//Data Create
+export const CreateDetails = async (req, res) => {
+    const {rating,name, des} = req.body;
+  
+    try{
+      const newDetails = new Review({
+        rating,name, des
+      })
+      await newDetails.save();
+      res.status(201).json({ message: "Details created successfully", data: newDetails });
 
-        const userData = new Review(req.body);
-
-
-        await userData.save();
-        res.status(200).json({msg: "Review save sucesfully"});
-
-    } catch (error) {
-        res.status(500).json({error: error});
     }
-}
+   catch  (error){
+    console.error("Error creating details:", error);
+    res.status(500).json({ message: "Failed to create details" });
+   }
+   
+  };
+
+//Read details by ID
+export const getAllDetails = async (req, res) => {
+  try {
+      const allDetails = await Review.find();
+      if (!allDetails || allDetails.length === 0) {
+          return res.status(404).json({ message: "No details found" });
+      }
+      res.json({ message: "Details found", data: allDetails });
+  } catch (error) {
+      console.error("Error fetching details:", error);
+      res.status(500).json({ message: "Failed to fetch details" });
+  }
+};
 
 
-export const getAll = async(req, res) =>{
-    try {
-
-        const userData = await Review.find();
-       
-        res.status(200).json(userData);
-        
-    } catch (error) {
-        res.status(500).json({error: error});
-    }
-}
 
 
-export const getOne = async(req, res) =>{
-    try {
+//Read details by ID
+export const getOneDetails = async (req, res) => {
+  try {
+      const oneDetails = await Review.findById(req.params.id);
+      if (!oneDetails) {
+          return res.status(404).json({ message: "No details found" });
+      }
+      res.json({ message: "Details found", data: oneDetails });
+  } catch (error) {
+      console.error("Error fetching details:", error);
+      res.status(500).json({ message: "Failed to fetch details" });
+  }
+};
 
-        const id = req.params.id;
-        const userExist = await Review.findById(id);
-       
-        res.status(200).json(userExist);
-        
-    } catch (error) {
-        res.status(500).json({error: error});
-    }
-}
 
+ 
+// Update details by ID
+export const updateDetailsById = async (req, res) => {
+  const { id } = req.params;
+  const {rating,name, des} = req.body;
 
-export const update = async(req, res) =>{
-    try {
+  try {
+      const updatedDetails = await Review.findByIdAndUpdate(id, {
+        rating,name, des
 
-        const id = req.params.id;
-        const userExist = await Review.findById(id);
-        
+      }, { new: true });
 
-        const updatedData = await Review.findByIdAndUpdate(id, req.body, {new:true});
-        res.status(200).json({msg: "Review updated successfully"});
-        
-    } catch (error) {
-        res.status(500).json({error: error});
-    }
-}
+      if (!updatedDetails) {
+          return res.status(404).json({ message: "Details not found" });
+      }
+      res.json({ message: "Details updated successfully", data: updatedDetails });
+  } catch (error) {
+      console.error("Error updating details:", error);
+      res.status(500).json({ message: "Failed to update details" });
+  }
+};
 
-export const deleteUser = async(req, res) =>{
-    try {
+// Delete details by ID
+export const deleteDetailsById = async (req, res) => {
+  const { id } = req.params;
 
-        const id = req.params.id;
-        const userExist = await Review.findById(id);
-       
-        await Review.findByIdAndDelete(id);
-        res.status(200).json({msg: "Review deleted successfully"});
-        
-    } catch (error) {
-        res.status(500).json({error: error});
-    }
-}
+  try {
+      const deletedDetails = await Review.findByIdAndDelete(id);
+      if (!deletedDetails) {
+          return res.status(404).json({ message: "Details not found" });
+      }
+      res.json({ message: "Details deleted successfully", data: deletedDetails });
+  } catch (error) {
+      console.error("Error deleting details:", error);
+      res.status(500).json({ message: "Failed to delete details" });
+  }
+};
